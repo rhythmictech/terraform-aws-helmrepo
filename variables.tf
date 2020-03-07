@@ -1,11 +1,11 @@
 variable "name" {
-  default = "default"
+  default     = "default"
   description = "Prefix name for the helm repo (e.g., EKS cluster name)"
-  type = string
+  type        = string
 }
 
 variable "tags" {
-  default = {}
+  default     = {}
   description = "Tags to add to supported resources"
-  type    = map(string)
+  type        = map(string)
 }

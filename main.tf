@@ -34,5 +34,5 @@ resource "aws_s3_bucket_public_access_block" "this" {
     create_before_destroy = true
   }
 
-  depends_on = [aws_s3_bucket.repo_bucket]
+  depends_on = [aws_s3_bucket.this]
 }
