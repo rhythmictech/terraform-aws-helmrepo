@@ -5,7 +5,7 @@
 [![yamllint](https://github.com/rhythmictech/terraform-aws-helmrepo/workflows/yamllint/badge.svg?branch=main&event=push)](https://github.com/rhythmictech/terraform-aws-helmrepo/actions?query=workflow%3Ayamllint+event%3Apush+branch%3Amain)
 [![misspell](https://github.com/rhythmictech/terraform-aws-helmrepo/workflows/misspell/badge.svg?branch=main&event=push)](https://github.com/rhythmictech/terraform-aws-helmrepo/actions?query=workflow%3Amisspell+event%3Apush+branch%3Amain)
 [![pre-commit-check](https://github.com/rhythmictech/terraform-aws-helmrepo/workflows/pre-commit-check/badge.svg?branch=main&event=push)](https://github.com/rhythmictech/terraform-aws-helmrepo/actions?query=workflow%3Apre-commit-check+event%3Apush+branch%3Amain)
-<a href="https://twitter.com/intent/follow?screen_name=RhythmicTech"><img src="https://img.shields.io/twitter/follow/RhythmicTech?style=social&logo=RhythmicTech" alt="follow on Twitter"></a>
+<a href="https://twitter.com/intent/follow?screen_name=RhythmicTech"><img src="https://img.shields.io/twitter/follow/RhythmicTech?style=social&logo=twitter" alt="follow on Twitter"></a>
 
 Create an S3 bucket intended to serve as a Helm repo. Configures basic encryption and supports sharing the bucket across many accounts.
 
