@@ -54,7 +54,10 @@ resource "aws_s3_bucket_public_access_block" "this" {
     create_before_destroy = true
   }
 
-  depends_on = [aws_s3_bucket.this]
+  depends_on = [
+    aws_s3_bucket.this,
+    aws_s3_bucket_policy.this
+  ]
 }
 
 data "aws_iam_policy_document" "this" {
