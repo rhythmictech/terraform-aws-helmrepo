@@ -48,8 +48,8 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_allow_cross_account_write"></a> [allow\_cross\_account\_write](#input\_allow\_cross\_account\_write) | Allow write access to helm repo from `allowed_account_ids` | `bool` | `false` | no |
 | <a name="input_allowed_account_ids"></a> [allowed\_account\_ids](#input\_allowed\_account\_ids) | List of AWS account IDs to grant read-only access to the repo. Due to how policies are constructed, there's effectively a limit of about 9 accounts. | `list(string)` | `[]` | no |
+| <a name="input_allowed_account_ids_write"></a> [allowed\_account\_ids\_write](#input\_allowed\_account\_ids\_write) | List of AWS account IDs to grant write access to the repo. Due to how policies are constructed, there's effectively a limit of about 9 accounts. | `list(string)` | `[]` | no |
 | <a name="input_logging_bucket"></a> [logging\_bucket](#input\_logging\_bucket) | S3 bucket name to log bucket access requests to (optional) | `string` | `null` | no |
 | <a name="input_logging_bucket_prefix"></a> [logging\_bucket\_prefix](#input\_logging\_bucket\_prefix) | S3 bucket prefix to log bucket access requests to (optional). If blank but a `logging_bucket` is specified, this will be set to the name of the bucket | `string` | `null` | no |
 | <a name="input_name"></a> [name](#input\_name) | Bucket name for the helm repo. Specify to control the exact name of the bucket, otherwise use `name_suffix` | `string` | `null` | no |

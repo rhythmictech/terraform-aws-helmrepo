@@ -131,7 +131,7 @@ data "aws_iam_policy_document" "this" {
   }
 
   dynamic "statement" {
-    for_each = var.allow_cross_account_write ? var.allowed_account_ids : []
+    for_each = var.allowed_account_ids_write
 
     content {
       sid       = "Allow Cross-account write access (${statement.value})"

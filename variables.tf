@@ -1,15 +1,15 @@
 ########################################
 # General Vars
 ########################################
-variable "allow_cross_account_write" {
-  default     = false
-  description = "Allow write access to helm repo from `allowed_account_ids`"
-  type        = bool
-}
-
 variable "allowed_account_ids" {
   default     = []
   description = "List of AWS account IDs to grant read-only access to the repo. Due to how policies are constructed, there's effectively a limit of about 9 accounts."
+  type        = list(string)
+}
+
+variable "allowed_account_ids_write" {
+  default     = []
+  description = "List of AWS account IDs to grant write access to the repo. Due to how policies are constructed, there's effectively a limit of about 9 accounts."
   type        = list(string)
 }
 
