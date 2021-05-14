@@ -129,6 +129,22 @@ data "aws_iam_policy_document" "this" {
       }
     }
   }
+
+  dynamic "statement" {
+    for_each = var.allow_cross_account_write ? var.allowed_account_ids : []
+
+    content {
+      sid       = "Allow Cross-account write access (${statement.value})"
+      actions   = ["s3:PutObject*"]
+      effect    = "Allow"
+      resources = ["${aws_s3_bucket.this.arn}/*"]
+
+      principals {
+        identifiers = ["arn:aws:iam::${statement.value}:root"]
+        type        = "AWS"
+      }
+    }
+  }
 }
 
 resource "aws_s3_bucket_policy" "this" {
