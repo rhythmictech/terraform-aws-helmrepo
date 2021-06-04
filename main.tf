@@ -61,42 +61,6 @@ resource "aws_s3_bucket_public_access_block" "this" {
 }
 
 data "aws_iam_policy_document" "this" {
-  statement {
-    sid       = "DenyIncorrectEncryptionHeader"
-    actions   = ["s3:PutObject*"]
-    effect    = "Deny"
-    resources = ["${aws_s3_bucket.this.arn}/*"]
-
-    condition {
-      test     = "StringNotEquals"
-      variable = "s3:x-amz-server-side-encryption"
-      values   = ["AES256"]
-    }
-
-    principals {
-      identifiers = ["*"]
-      type        = "AWS"
-    }
-  }
-
-  statement {
-    sid       = "DenyUnEncryptedObjectUploads"
-    actions   = ["s3:PutObject*"]
-    effect    = "Deny"
-    resources = ["${aws_s3_bucket.this.arn}/*"]
-
-    condition {
-      test     = "Null"
-      variable = "s3:x-amz-server-side-encryption"
-      values   = [true]
-    }
-
-    principals {
-      identifiers = ["*"]
-      type        = "AWS"
-    }
-  }
-
   dynamic "statement" {
     for_each = var.allowed_account_ids
 
