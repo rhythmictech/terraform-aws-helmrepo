@@ -1,3 +1,8 @@
+provider "aws" {
+  alias  = "destination"
+  region = var.dest_region
+}
+
 data "aws_caller_identity" "current" {
 }
 
@@ -10,6 +15,11 @@ locals {
   logging_map = var.logging_bucket == null ? [] : [{
     bucket = var.logging_bucket
     prefix = var.logging_bucket_prefix != null ? var.logging_bucket_prefix : local.bucket_name
+  }]
+
+  dest_logging_map = var.dest_logging_bucket == null ? [] : [{
+    bucket = var.dest_logging_bucket
+    prefix = var.dest_logging_bucket_prefix != null ? var.dest_logging_bucket_prefix : "${local.bucket_name}-replica"
   }]
 }
 
@@ -118,4 +128,144 @@ data "aws_iam_policy_document" "this" {
 resource "aws_s3_bucket_policy" "this" {
   bucket = aws_s3_bucket.this.id
   policy = data.aws_iam_policy_document.this.json
+}
+
+########################################
+# Source replication configuration
+########################################
+resource "aws_s3_bucket_replication_configuration" "this" {
+  count = var.dest_region != "" ? 1 : 0
+
+  role   = aws_iam_role.replication[0].arn
+  bucket = aws_s3_bucket.this.id
+
+  rule {
+    id       = random_id.replication[0].b64_std
+    priority = 0
+
+    delete_marker_replication {
+      status = "Enabled"
+    }
+
+    filter {
+      prefix = ""
+    }
+
+    status = "Enabled"
+
+    destination {
+      bucket = aws_s3_bucket.destination[0].arn
+    }
+  }
+}
+
+########################################
+# Replicated bucket
+########################################
+#tfsec:ignore:AWS002
+resource "aws_s3_bucket" "destination" {
+  count    = var.dest_region != "" ? 1 : 0
+  provider = aws.destination
+
+  bucket = "${local.bucket_name}-replica"
+  acl    = "private"
+  tags   = var.tags
+
+  dynamic "logging" {
+    for_each = local.dest_logging_map
+
+    content {
+      target_bucket = logging.value.bucket
+      target_prefix = logging.value.prefix
+    }
+  }
+
+  versioning {
+    enabled = true
+  }
+
+  server_side_encryption_configuration {
+    rule {
+      apply_server_side_encryption_by_default {
+        sse_algorithm = "AES256"
+      }
+    }
+  }
+
+}
+
+resource "aws_s3_bucket_public_access_block" "dest_block_public_access" {
+  count    = var.dest_region != "" ? 1 : 0
+  provider = aws.destination
+
+  bucket                  = aws_s3_bucket.destination[0].id
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
+data "aws_iam_policy_document" "destination" {
+  count    = var.dest_region != "" ? 1 : 0
+  provider = aws.destination
+  dynamic "statement" {
+    for_each = var.allowed_account_ids
+
+    content {
+
+      sid       = "Allow cross-account access to list objects (${statement.value})"
+      actions   = ["s3:ListBucket"]
+      effect    = "Allow"
+      resources = [aws_s3_bucket.destination[0].arn]
+
+      principals {
+        identifiers = ["arn:aws:iam::${statement.value}:root"]
+        type        = "AWS"
+      }
+    }
+  }
+
+  dynamic "statement" {
+    # Remove accounts with write access from this statement to keep policy size down
+    for_each = setsubtract(var.allowed_account_ids, var.allowed_account_ids_write)
+
+    content {
+      sid       = "Allow Cross-account read-only access (${statement.value})"
+      actions   = ["s3:GetObject*"]
+      effect    = "Allow"
+      resources = ["${aws_s3_bucket.destination[0].arn}/*"]
+
+      principals {
+        identifiers = ["arn:aws:iam::${statement.value}:root"]
+        type        = "AWS"
+      }
+    }
+  }
+
+  dynamic "statement" {
+    for_each = var.allowed_account_ids_write
+
+    content {
+      sid = "Allow Cross-account write access (${statement.value})"
+      actions = [
+        "s3:GetObject*",
+        "s3:PutObject*"
+      ]
+      effect    = "Allow"
+      resources = ["${aws_s3_bucket.destination[0].arn}/*"]
+
+      principals {
+        identifiers = ["arn:aws:iam::${statement.value}:root"]
+        type        = "AWS"
+      }
+    }
+  }
+}
+
+resource "aws_s3_bucket_policy" "destination" {
+  count    = var.dest_region != "" ? 1 : 0
+  provider = aws.destination
+
+  bucket = aws_s3_bucket.destination[0].id
+  policy = data.aws_iam_policy_document.destination[0].json
 }

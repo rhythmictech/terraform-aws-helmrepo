@@ -7,3 +7,11 @@
 
 # .tfvars files
 *.tfvars
+
+# macs
+.DS_Store
+
+# temp folders
+tmp
+
+.terraform.lock.hcl
