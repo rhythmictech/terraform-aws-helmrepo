@@ -11,7 +11,7 @@ data "aws_iam_policy_document" "replication_assume_role" {
 }
 
 resource "aws_iam_role" "replication" {
-  count = "${var.dest_region != "" ? 1 : 0}"
+  count = var.dest_region != "" ? 1 : 0
 
   name_prefix        = "replication"
   assume_role_policy = data.aws_iam_policy_document.replication_assume_role.json
@@ -19,7 +19,7 @@ resource "aws_iam_role" "replication" {
 }
 
 data "aws_iam_policy_document" "replication_policy_doc" {
-  count = "${var.dest_region != "" ? 1 : 0}"
+  count = var.dest_region != "" ? 1 : 0
   statement {
     effect = "Allow"
     actions = [
@@ -63,14 +63,14 @@ data "aws_iam_policy_document" "replication_policy_doc" {
 }
 
 resource "aws_iam_policy" "replication_policy" {
-  count = "${var.dest_region != "" ? 1 : 0}"
+  count = var.dest_region != "" ? 1 : 0
 
   name_prefix = "replication-policy"
   policy      = data.aws_iam_policy_document.replication_policy_doc[0].json
 }
 
 resource "aws_iam_policy_attachment" "replication" {
-  count = "${var.dest_region != "" ? 1 : 0}"
+  count = var.dest_region != "" ? 1 : 0
 
   name       = "replication"
   roles      = [aws_iam_role.replication[0].name]
@@ -78,6 +78,6 @@ resource "aws_iam_policy_attachment" "replication" {
 }
 
 resource "random_id" "replication" {
-  count       = "${var.dest_region != "" ? 1 : 0}"
+  count       = var.dest_region != "" ? 1 : 0
   byte_length = 32
 }

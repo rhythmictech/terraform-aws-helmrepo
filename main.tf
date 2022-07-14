@@ -16,6 +16,11 @@ locals {
     bucket = var.logging_bucket
     prefix = var.logging_bucket_prefix != null ? var.logging_bucket_prefix : local.bucket_name
   }]
+
+  dest_logging_map = var.dest_logging_bucket == null ? [] : [{
+    bucket = var.dest_logging_bucket
+    prefix = var.dest_logging_bucket_prefix != null ? var.dest_logging_bucket_prefix : "${local.bucket_name}-replica"
+  }]
 }
 
 # This bucket uses a dynamic block to generate logging. If users do not wish to log,
@@ -129,7 +134,7 @@ resource "aws_s3_bucket_policy" "this" {
 # Source replication configuration
 ########################################
 resource "aws_s3_bucket_replication_configuration" "this" {
-  count = "${var.dest_region != "" ? 1 : 0}"
+  count = var.dest_region != "" ? 1 : 0
 
   role   = aws_iam_role.replication[0].arn
   bucket = aws_s3_bucket.this.id
@@ -157,13 +162,23 @@ resource "aws_s3_bucket_replication_configuration" "this" {
 ########################################
 # Replicated bucket
 ########################################
+#tfsec:ignore:AWS002
 resource "aws_s3_bucket" "destination" {
-  count    = "${var.dest_region != "" ? 1 : 0}"
+  count    = var.dest_region != "" ? 1 : 0
   provider = aws.destination
 
   bucket = "${local.bucket_name}-replica"
   acl    = "private"
-  tags   = merge(var.tags)
+  tags   = var.tags
+
+  dynamic "logging" {
+    for_each = local.dest_logging_map
+
+    content {
+      target_bucket = logging.value.bucket
+      target_prefix = logging.value.prefix
+    }
+  }
 
   versioning {
     enabled = true
@@ -180,7 +195,7 @@ resource "aws_s3_bucket" "destination" {
 }
 
 resource "aws_s3_bucket_public_access_block" "dest_block_public_access" {
-  count    = "${var.dest_region != "" ? 1 : 0}"
+  count    = var.dest_region != "" ? 1 : 0
   provider = aws.destination
 
   bucket                  = aws_s3_bucket.destination[0].id
@@ -191,7 +206,7 @@ resource "aws_s3_bucket_public_access_block" "dest_block_public_access" {
 }
 
 data "aws_iam_policy_document" "destination" {
-  count    = "${var.dest_region != "" ? 1 : 0}"
+  count    = var.dest_region != "" ? 1 : 0
   provider = aws.destination
   dynamic "statement" {
     for_each = var.allowed_account_ids
@@ -248,7 +263,7 @@ data "aws_iam_policy_document" "destination" {
 }
 
 resource "aws_s3_bucket_policy" "destination" {
-  count    = "${var.dest_region != "" ? 1 : 0}"
+  count    = var.dest_region != "" ? 1 : 0
   provider = aws.destination
 
   bucket = aws_s3_bucket.destination[0].id

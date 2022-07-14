@@ -13,12 +13,23 @@ variable "allowed_account_ids_write" {
   type        = list(string)
 }
 
-variable "dest_region" {
-  default     = ""
-  description = "Region to replicate repo bucket to"
+variable "dest_logging_bucket" {
+  default     = null
+  description = "S3 bucket name to log bucket access requests to (optional)"
   type        = string
 }
 
+variable "dest_logging_bucket_prefix" {
+  default     = null
+  description = "S3 bucket prefix to log bucket access requests to (optional). If blank but a `logging_bucket` is specified, this will be set to the name of the bucket"
+  type        = string
+}
+
+variable "dest_region" {
+  default     = ""
+  description = "Region to replicate repo bucket to (omit to disable replication)"
+  type        = string
+}
 variable "logging_bucket" {
   default     = null
   description = "S3 bucket name to log bucket access requests to (optional)"
