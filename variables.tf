@@ -1,6 +1,7 @@
 ########################################
 # General Vars
 ########################################
+
 variable "allowed_account_ids" {
   default     = []
   description = "List of AWS account IDs to grant read-only access to the repo. Due to how policies are constructed, there's effectively a limit of about 9 accounts."
@@ -11,6 +12,11 @@ variable "allowed_account_ids_write" {
   default     = []
   description = "List of AWS account IDs to grant write access to the repo. Due to how policies are constructed, there's effectively a limit of about 9 accounts."
   type        = list(string)
+}
+variable "dest_extra_bucket_policy" {
+  default     = ""
+  description = "Extra bucket policies to attach to the destination bucket. Pass in as aws_iam_policy_document json"
+  type        = string
 }
 
 variable "dest_logging_bucket" {
