@@ -25,7 +25,7 @@ locals {
 
 # This bucket uses a dynamic block to generate logging. If users do not wish to log,
 # that's on them, but the module supports it.
-#tfsec:ignore:AWS002
+#tfsec:ignore:aws-s3-enable-bucket-logging tfsec:ignore:aws-s3-encryption-customer-key
 resource "aws_s3_bucket" "this" {
   bucket = local.bucket_name
   acl    = "private"
