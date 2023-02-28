@@ -5,7 +5,10 @@
 [![misspell](https://github.com/rhythmictech/terraform-aws-helmrepo/workflows/misspell/badge.svg?branch=master&event=push)](https://github.com/rhythmictech/terraform-aws-helmrepo/actions?query=workflow%3Amisspell+event%3Apush+branch%3Amaster)
 [![pre-commit-check](https://github.com/rhythmictech/terraform-aws-helmrepo/workflows/pre-commit-check/badge.svg?branch=master&event=push)](https://github.com/rhythmictech/terraform-aws-helmrepo/actions?query=workflow%3Apre-commit-check+event%3Apush+branch%3Amaster)
 
-Create an S3 bucket intended to serve as a Helm repo. Configures basic encryption and supports sharing the bucket across many accounts.
+Create an S3 bucket intended to serve as a Helm repo. Features:
+- Configures basic encryption
+- Supports sharing the bucket across many accounts with `var.allowed_account_ids, var.allowed_account_ids_writ`
+- Supports cross-region bucket replication with `var.dest_region`
 
 ## Usage
 ```
@@ -27,9 +30,9 @@ module {
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 4.0 |
-| <a name="provider_aws.destination"></a> [aws.destination](#provider\_aws.destination) | >= 4.0 |
-| <a name="provider_random"></a> [random](#provider\_random) | >= 3 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 4.56.0 |
+| <a name="provider_aws.destination"></a> [aws.destination](#provider\_aws.destination) | 4.56.0 |
+| <a name="provider_random"></a> [random](#provider\_random) | 3.4.3 |
 
 ## Modules
 
@@ -52,6 +55,7 @@ No modules.
 | [random_id.replication](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/id) | resource |
 | [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
 | [aws_iam_policy_document.destination](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.destination_combined](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.replication_assume_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.replication_policy_doc](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
@@ -63,6 +67,7 @@ No modules.
 |------|-------------|------|---------|:--------:|
 | <a name="input_allowed_account_ids"></a> [allowed\_account\_ids](#input\_allowed\_account\_ids) | List of AWS account IDs to grant read-only access to the repo. Due to how policies are constructed, there's effectively a limit of about 9 accounts. | `list(string)` | `[]` | no |
 | <a name="input_allowed_account_ids_write"></a> [allowed\_account\_ids\_write](#input\_allowed\_account\_ids\_write) | List of AWS account IDs to grant write access to the repo. Due to how policies are constructed, there's effectively a limit of about 9 accounts. | `list(string)` | `[]` | no |
+| <a name="input_dest_extra_bucket_policy"></a> [dest\_extra\_bucket\_policy](#input\_dest\_extra\_bucket\_policy) | Extra bucket policies to attach to the destination bucket. Pass in as aws\_iam\_policy\_document json | `string` | `""` | no |
 | <a name="input_dest_logging_bucket"></a> [dest\_logging\_bucket](#input\_dest\_logging\_bucket) | S3 bucket name to log bucket access requests to (optional) | `string` | `null` | no |
 | <a name="input_dest_logging_bucket_prefix"></a> [dest\_logging\_bucket\_prefix](#input\_dest\_logging\_bucket\_prefix) | S3 bucket prefix to log bucket access requests to (optional). If blank but a `logging_bucket` is specified, this will be set to the name of the bucket | `string` | `null` | no |
 | <a name="input_dest_region"></a> [dest\_region](#input\_dest\_region) | Region to replicate repo bucket to (omit to disable replication) | `string` | `""` | no |

@@ -262,10 +262,19 @@ data "aws_iam_policy_document" "destination" {
   }
 }
 
+data "aws_iam_policy_document" "destination_combined" {
+  count    = var.dest_region != "" ? 1 : 0
+  provider = aws.destination
+  source_policy_documents = [
+    data.aws_iam_policy_document.destination[0].json,
+    var.dest_extra_bucket_policy,
+  ]
+}
+
 resource "aws_s3_bucket_policy" "destination" {
   count    = var.dest_region != "" ? 1 : 0
   provider = aws.destination
 
   bucket = aws_s3_bucket.destination[0].id
-  policy = data.aws_iam_policy_document.destination[0].json
+  policy = data.aws_iam_policy_document.destination_combined[0].json
 }
